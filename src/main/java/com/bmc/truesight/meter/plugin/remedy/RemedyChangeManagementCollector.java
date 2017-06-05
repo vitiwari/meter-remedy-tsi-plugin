@@ -27,6 +27,7 @@ import com.bmc.truesight.remedy.beans.Payload;
 import com.boundary.plugin.sdk.Collector;
 import com.boundary.plugin.sdk.Event;
 import com.boundary.plugin.sdk.EventSinkAPI;
+import com.boundary.plugin.sdk.EventSinkStandardOutput;
 import com.boundary.plugin.sdk.Measurement;
 import com.google.gson.Gson;
 import java.util.ArrayList;
@@ -70,13 +71,14 @@ public class RemedyChangeManagementCollector implements Collector {
 
     @Override
     public void run() {
-        EventSinkAPI eventSinkAPI = new EventSinkAPI();
-        System.out.println("com.bmc.truesight.meter.plugin.remedy.RemedyChangeManagementCollector.run() Plugin started");
+    	HttpEventSinkAPI eventSinkAPI = new HttpEventSinkAPI();
+    	EventSinkStandardOutput eventSinkAPIstd = new EventSinkStandardOutput();
         while (true) {
             try {
                 ARServerUser arServerContext = createARServerContext();
                 Calendar cal = null;
                 try {
+                	arServerContext.login();
                     int chunkSize = Constants.REMEDY_CHUNK_SIZE;
                     int startFrom = 1;
                     int iteration = 1;
@@ -85,18 +87,20 @@ public class RemedyChangeManagementCollector implements Collector {
                     cal = Calendar.getInstance();
                     cal.add(Calendar.MILLISECOND, (0 - config.getPollInterval()));
                     while (readNext) {
-                        List<Payload> eventList = readChangeIncidents(arServerContext, startFrom, chunkSize, nMatches, cal.getTime());
+                        List<Payload> eventList = readRemedyChangeTickets(arServerContext, startFrom, chunkSize, nMatches, cal.getTime());
                         if (eventList.size() > 0) {
-                            eventList.forEach(event -> {
+                        	eventSinkAPI.pushBulkEventsToTSI(eventList, "9aab1972-12aa-4721-ac9e-f54d151e1668", "https://api.truesight-staging.bmc.com/v1/events");
+                        	
+                         /*   eventList.forEach(event -> {
                                 Gson gson = new Gson();
                                 String eventJson = gson.toJson(event, Object.class);
                                 StringBuilder sendEventToTSI = new StringBuilder();
                                 sendEventToTSI.append(Constants.REMEDY_PROXY_EVENT_JSON_START_STRING).append(eventJson).append(Constants.REMEDY_PROXY_EVENT_JSON_END_STRING);
                                 System.out.println("sendEventToTSI" + sendEventToTSI.toString());
                                 eventSinkAPI.emit(sendEventToTSI.toString());
-                            });
+                            });*/
                         } else {
-                            eventSinkAPI.emit(Util.eventTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, Constants.REMEDY_CM_NO_DATA_AVAILABLE, configParser, Event.EventSeverity.INFO.toString()));
+                        	eventSinkAPIstd.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, Constants.REMEDY_CM_NO_DATA_AVAILABLE, configParser, Event.EventSeverity.INFO.toString()));
                             //eventSinkAPI.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, Constants.REMEDY_CM_NO_DATA_AVAILABLE, config.getHostName(), Event.EventSeverity.ERROR.toString()));
                         }
                         if (nMatches.longValue() <= (startFrom + chunkSize)) {
@@ -108,27 +112,28 @@ public class RemedyChangeManagementCollector implements Collector {
 
                 } catch (Exception e) {
                     LOG.error("Exception occure while fetching the data", e);
-                    eventSinkAPI.emit(Util.eventTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), configParser, Event.EventSeverity.ERROR.toString()));
+                    eventSinkAPIstd.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), configParser, Event.EventSeverity.ERROR.toString()));
 
                 } finally {
                     arServerContext.logout();
                 }
                 Thread.sleep(config.getPollInterval());
             } catch (InterruptedException ex) {
-                eventSinkAPI.emit(Util.eventTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, ex.getMessage(), configParser, Event.EventSeverity.ERROR.toString()));
+            	eventSinkAPIstd.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, ex.getMessage(), configParser, Event.EventSeverity.ERROR.toString()));
                 //eventSinkAPI.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, ex.getMessage(), config.getHostName(), Event.EventSeverity.ERROR.toString()));
             }
         }
     }
 
-    public List<Payload> readChangeIncidents(ARServerUser arServerContext, int startFrom, int chunkSize, OutputInteger nMatches, final Date date) {
+    public List<Payload> readRemedyChangeTickets(ARServerUser arServerContext, int startFrom, int chunkSize, OutputInteger nMatches, final Date date) {
 
         //keeping as set to avoid duplicates
         Set<Integer> fieldsList = new HashSet<>();
         configParser.getFieldItemMap().values().forEach(fieldItem -> {
             fieldsList.add(fieldItem.getFieldId());
         });
-        EventSinkAPI eventSinkAPI = new EventSinkAPI();
+        HttpEventSinkAPI eventSinkAPI = new HttpEventSinkAPI();
+    	EventSinkStandardOutput eventSinkAPIstd = new EventSinkStandardOutput();
         int[] queryFieldsList = new int[fieldsList.size()];
         int index = 0;
         for (Integer fieldId : fieldsList) {
@@ -138,29 +143,40 @@ public class RemedyChangeManagementCollector implements Collector {
         }
 
         Date newDate = new Date();
-        //System.out.println("Old date" + date.getTime());
-        FieldItem fieldItem = configParser.getFieldItemMap().get(Constants.REMEDY_CLOSE_DATE);
-        QualifierInfo qualInfo1 = buildFieldValueQualification(fieldItem.getFieldId(),
-                new Value(new Timestamp(date), DataType.TIME), RelationalOperationInfo.AR_REL_OP_GREATER_EQUAL);
+        QualifierInfo qualInfoF = null;
+        if (configParser.getConfiguration().getConditionFields() != null && configParser.getConfiguration().getConditionFields().size() > 0) {
+            for (int fieldId : configParser.getConfiguration().getConditionFields()) {
+                QualifierInfo qualInfo1 = buildFieldValueQualification(fieldId,
+                        new Value(new Timestamp(date), DataType.TIME), RelationalOperationInfo.AR_REL_OP_GREATER_EQUAL);
 
-        QualifierInfo qualInfo2 = buildFieldValueQualification(fieldItem.getFieldId(),
-                new Value(new Timestamp(newDate), DataType.TIME), RelationalOperationInfo.AR_REL_OP_LESS_EQUAL);
+                QualifierInfo qualInfo2 = buildFieldValueQualification(fieldId,
+                        new Value(new Timestamp(newDate), DataType.TIME), RelationalOperationInfo.AR_REL_OP_LESS_EQUAL);
 
-        QualifierInfo qualInfo = new QualifierInfo(QualifierInfo.AR_COND_OP_AND, qualInfo1, qualInfo2);
+                QualifierInfo qualInfo = new QualifierInfo(QualifierInfo.AR_COND_OP_AND, qualInfo1, qualInfo2);
 
+                if (qualInfoF != null) {
+                    qualInfoF = new QualifierInfo(QualifierInfo.AR_COND_OP_OR, qualInfoF, qualInfo);
+                } else {
+                    qualInfoF = qualInfo;
+                }
+
+            }
+        }
         List<SortInfo> sortOrder = new ArrayList<>();
         List<Entry> entryList = new ArrayList<>();
         try {
-            entryList = arServerContext.getListEntryObjects(Constants.REMEDY_CHG_FORM_INFRASTRUCTURE_CHANGE, qualInfo,
+            entryList = arServerContext.getListEntryObjects(Constants.REMEDY_CHG_FORM_INFRASTRUCTURE_CHANGE, qualInfoF,
                     startFrom, chunkSize, sortOrder, queryFieldsList, false, nMatches);
         } catch (ARException ex) {
-            eventSinkAPI.emit(Util.eventTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, StringUtils.format(Constants.REMEDY_LOGIN_FAILED, new Object[]{ex.getMessage()}), configParser, Event.EventSeverity.ERROR.toString()));
+        	eventSinkAPIstd.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, StringUtils.format(Constants.REMEDY_LOGIN_FAILED, new Object[]{ex.getMessage()}), configParser, Event.EventSeverity.ERROR.toString()));
             //eventSinkAPI.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, StringUtils.format(Constants.REMEDY_LOGIN_FAILED, new Object[]{ex.getMessage()}), config.getHostName(), Event.EventSeverity.ERROR.toString()));
         }
         List<Payload> payloadList = new ArrayList<>();
         if (entryList.size() > 0) {
             entryList.forEach(entry -> {
-                payloadList.add(remedyEntryEventAdapter.convertIncidentEntryToPayload(configParser, entry));
+                //if (Util.statusFilter(configParser, entry, configParser.getConfiguration().getStatusCondition())) {
+                    payloadList.add(remedyEntryEventAdapter.convertIncidentEntryToPayload(configParser, entry));
+               // }
             });
         }
         return payloadList;

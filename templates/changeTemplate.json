@@ -1,4 +1,8 @@
 {
+	"config": {
+  		"conditionFields":[6],
+		"statusCondition":[3]
+	},
 	"payload": {
 		"title": "@TITLE",
 		"fingerprintFields": ["ChangeID"],
@@ -10,7 +14,7 @@
 			"CI": "@CI",
 			"Priority": "@PRIORITY",
 			"PriorityWeight": "@WEIGHT",
-			"app_id": "Remedy Application Integration"
+			"app_id": "Remedy(Change) Integration intial DEMO"
 		},
 		"createdAt": "@CREATED_AT",
 		"eventClass": "Change",
@@ -63,8 +67,8 @@
 	},
 	"@CHANGE_ID":{"fieldId":1000000182},
 	"@WEIGHT":{"fieldId":""},
-	"@TITLE":{"fieldId":100000000},
+	"@TITLE":{"fieldId":1000000151},
 	"@ASSIGNEE":{"fieldId":303124400},
 	"@CI":{"fieldId":301556800},
-	"@CREATED_AT":{"fieldId":3}
+	"@CREATED_AT":{"fieldId":6}
 }

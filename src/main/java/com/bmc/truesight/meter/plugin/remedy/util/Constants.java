@@ -38,5 +38,7 @@ public class Constants {
     public final static String REMEDY_CHG_FORM_INFRASTRUCTURE_CHANGE = "CHG:Infrastructure Change";
     public final static String REMEDY_IM_NO_DATA_AVAILABLE="No data available for incident management";
     public final static String REMEDY_CM_NO_DATA_AVAILABLE="No data available for change management";
+    public static final String REMEDY_LAST_UPDATED_DATE = "@LASTUPDATEDATE";
+    public static final String REMEDY_STATUS_FIELD = "@STATUS";
 
 }

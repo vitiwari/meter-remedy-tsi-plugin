@@ -1,13 +1,13 @@
 package com.bmc.truesight.meter.plugin.remedy.util;
 
-import com.bmc.thirdparty.org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.bmc.thirdparty.org.apache.commons.codec.binary.Base64;
 
 
 /*
@@ -25,9 +25,9 @@ public class HttpClient {
         org.apache.http.client.HttpClient httpClient = null;
         while (retry.shouldRetry()) {
             try {
-                httpClient = new DefaultHttpClient();
-                HttpConnectionParams
-                        .setConnectionTimeout(httpClient.getParams(), 10000);
+                httpClient = HttpClientBuilder.create().build();
+                //new DefaultHttpClient();
+                //HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), 10000);
                 HttpPost httpPost = new HttpPost(url);
                 httpPost.addHeader("Authorization", "Basic " + encodeBase64("" + ":" + apiToken));
                 httpPost.addHeader("Content-Type", "application/json");

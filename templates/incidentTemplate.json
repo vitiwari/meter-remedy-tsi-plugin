@@ -1,4 +1,8 @@
 {
+	"config": {
+  		"conditionFields":[6],
+		"statusCondition":[3]
+	},
 	"payload": {
 		"title": "@TITLE",
 		"fingerprintFields": [
@@ -12,7 +16,7 @@
 			"CI": "@CI",
 			"Priority": "@PRIORITY",
 			"PriorityWeight": "@WEIGHT",
-			"app_id": "Remedy Integration Plugin1"
+			"app_id": "Remedy(Incidents) Integration intial DEMO"
 		},
 		"createdAt": "@CREATED_AT",
 		"eventClass": "Incident",
@@ -59,9 +63,9 @@
 	},
 	"@INCIDENT_NUMBER":{"fieldId":1000000161},
 	"@WEIGHT":{"fieldId":1000000169},
-	"@TITLE":{"fieldId":1000000000 },
+	"@TITLE":{"fieldId":1000000000},
 	"@ASSIGNEE":{"fieldId":1000000218},
 	"@CI":{"fieldId":303544200},
-	"@CREATED_AT":{"fieldId":1000000564}
+	"@CREATED_AT":{"fieldId":6}
 	
 }

@@ -1,22 +1,27 @@
 package com.bmc.truesight.meter.plugin.remedy.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bmc.arsys.api.Entry;
+import com.bmc.arsys.api.Value;
 import com.bmc.thirdparty.org.apache.commons.codec.binary.Base64;
 import com.bmc.truesight.remedy.beans.Events;
 import com.bmc.truesight.remedy.beans.FieldItem;
-import com.bmc.truesight.remedy.beans.PayloadSource;
+import com.bmc.truesight.remedy.beans.Payload;
 import com.boundary.plugin.sdk.Event;
 import com.boundary.plugin.sdk.EventSinkStandardOutput;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -38,8 +43,8 @@ public class Util {
         return fieldValues.toString();
     }
 
-    public static Map getKeyAndValueFromJsonObjectForRemedy(JsonObject jsonObjects, String jsonKey) {
-        Map values = new HashMap();
+    public static Map<JsonElement,String> getKeyAndValueFromJsonObjectForRemedy(JsonObject jsonObjects, String jsonKey) {
+        Map<JsonElement,String> values = new HashMap<>();
         JsonObject jsonObject = jsonObjects.get(jsonKey).getAsJsonObject();
         if (jsonObject.isJsonObject()) {
             Set<Map.Entry<String, JsonElement>> elements = ((JsonObject) jsonObject).entrySet();
@@ -79,7 +84,10 @@ public class Util {
         originalString = originalString.replace(removeString, "").trim();
         return originalString;
     }
-
+    public static Event eventMeterTSI(final String title, final String message, ConfigParser configParser, String severity) {
+        Event event = new Event(title,message);
+        return event;
+    }
     public static String eventTSI(final String title, final String message, ConfigParser configParser, String severity) {
         StringBuilder sendEventToTSI = new StringBuilder();
         try {
@@ -108,5 +116,39 @@ public class Util {
             LOG.error("Exception occure while sending error evenst", ex.getMessage());
         }
         return sendEventToTSI.toString();
+    }
+
+    public static boolean statusFilter(ConfigParser configParser, Entry entry, List<Integer> statusList) {
+        boolean isStatus = true;
+        try {
+            Integer statusValue = null;
+            if (statusList != null && statusList.size() > 0) {
+                Payload payload = new Payload(configParser.getPayload());
+                statusValue = getValueFromEntry(configParser, entry, payload.getStatus());
+                isStatus = contains(statusList, statusValue);
+            }
+        } catch (Exception ex) {
+            LOG.error("Exception occured in status filter{}", ex.getMessage());
+        }
+        return isStatus;
+    }
+
+    public static Integer getValueFromEntry(ConfigParser configParser, Entry entry, String placeholder) {
+        Integer val = null;
+        if (placeholder.startsWith("@")) {
+            FieldItem fieldItem = configParser.getFieldItemMap().get(placeholder);
+            Value value = entry.get(fieldItem.getFieldId());
+            if (value != null && value.getValue() != null) {
+                val = Integer.parseInt(value.getValue().toString());
+            }
+        }
+        return val;
+    }
+
+    public static boolean contains(List<Integer> list, Integer val) {
+        if (list.stream().anyMatch((item) -> (Objects.equals(item, val)))) {
+            return true;
+        }
+        return false;
     }
 }

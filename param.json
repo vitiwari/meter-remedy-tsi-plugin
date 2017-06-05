@@ -8,6 +8,10 @@
       "requestType":"cm",
       "fileds":[
         "{",
+        "\t\"config\": {",
+        "  \t\t\"conditionFields\":[6],",
+        "\t\t\"statusCondition\":[3]",
+        "\t},",
         "\t\"payload\": {",
         "\t\t\"title\": \"@TITLE\",",
         "\t\t\"fingerprintFields\": [\"ChangeID\"],",
@@ -19,7 +23,7 @@
         "\t\t\t\"CI\": \"@CI\",",
         "\t\t\t\"Priority\": \"@PRIORITY\",",
         "\t\t\t\"PriorityWeight\": \"@WEIGHT\",",
-        "\t\t\t\"app_id\": \"BMC Change APPLICATION\"",
+        "\t\t\t\"app_id\": \"Remedy(Change) Integration intial DEMO\"",
         "\t\t},",
         "\t\t\"createdAt\": \"@CREATED_AT\",",
         "\t\t\"eventClass\": \"Change\",",
@@ -72,13 +76,13 @@
         "\t},",
         "\t\"@CHANGE_ID\":{\"fieldId\":1000000182},",
         "\t\"@WEIGHT\":{\"fieldId\":\"\"},",
-        "\t\"@TITLE\":{\"fieldId\":100000000},",
+        "\t\"@TITLE\":{\"fieldId\":1000000151},",
         "\t\"@ASSIGNEE\":{\"fieldId\":303124400},",
         "\t\"@CI\":{\"fieldId\":301556800},",
-        "\t\"@CREATED_AT\":{\"fieldId\":3}",
+        "\t\"@CREATED_AT\":{\"fieldId\":6}",
         "}"
       ],
-      "pollInterval":1200000000
+      "pollInterval":1400000
     }
   ],
   "pollInterval":500
