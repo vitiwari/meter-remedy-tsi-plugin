@@ -91,7 +91,7 @@ public class RemedyIncidentManagementCollector implements Collector {
                     while (readNext) {
                         List<Payload> eventList = readRemedyIncidentTickets(arServerContext, startFrom, chunkSize, nMatches, cal.getTime());
                         if (eventList.size() > 0) {
-                        	eventSinkAPI.pushBulkEventsToTSI(eventList, "9aab1972-12aa-4721-ac9e-f54d151e1668", "https://api.truesight-staging.bmc.com/v1/events");
+                        	eventSinkAPI.pushBulkEventsToTSI(eventList, "52a90a69-242b-4a5f-8685-44eb1d42a0f8", "https://api.truesight-staging.bmc.com/v1/events");
                         	/*eventList.forEach(event -> {
                                 Gson gson = new Gson();
                                 String eventJson = gson.toJson(event, Object.class);
