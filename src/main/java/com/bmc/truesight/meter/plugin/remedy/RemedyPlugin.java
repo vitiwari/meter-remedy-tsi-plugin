@@ -53,15 +53,15 @@ public class RemedyPlugin implements Plugin<RemedyPluginConfiguration> {
     public void loadConfiguration() {
         Gson gson = new Gson();
         try {
-            RemedyPluginConfiguration pluginConfiguration = gson.fromJson(new FileReader("param.json"), RemedyPluginConfiguration.class);
+            RemedyPluginConfiguration pluginConfiguration = gson.fromJson(new FileReader("/etc/truesight/plugin/meter-plugin-remedy1/param.json"), RemedyPluginConfiguration.class);
             setConfiguration(pluginConfiguration);
         } catch (JsonParseException e) {
+        	 LOG.error("Exception occured while getting the param.json data", e);
         	eventOutput.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), new ConfigParser(""), Event.EventSeverity.ERROR.toString()));
-            LOG.error("Exception occured while getting the param.json data", e);
-        } catch (IOException e) {
+            } catch (IOException e) {
+            	LOG.error("IOException occured while getting the param.json data", e);
         	eventOutput.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), new ConfigParser(""), Event.EventSeverity.ERROR.toString()));
-            LOG.error("IOException occured while getting the param.json data", e);
-        }
+             }
     }
 
     @Override
