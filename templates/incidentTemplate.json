@@ -16,7 +16,7 @@
 			"CI": "@CI",
 			"Priority": "@PRIORITY",
 			"PriorityWeight": "@WEIGHT",
-			"app_id": "Remedy(Incidents) Integration intial DEMO"
+			"app_id": "Remedy DEMO 12"
 		},
 		"createdAt": "@CREATED_AT",
 		"eventClass": "Incident",
