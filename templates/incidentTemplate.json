@@ -1,6 +1,6 @@
 {
 	"config": {
-  		"conditionFields":[6],
+  		"conditionFields":[1000000564,3,6],
 		"statusCondition":[3]
 	},
 	"payload": {

@@ -56,10 +56,10 @@ public class RemedyPlugin implements Plugin<RemedyPluginConfiguration> {
             RemedyPluginConfiguration pluginConfiguration = gson.fromJson(new FileReader("param.json"), RemedyPluginConfiguration.class);
             setConfiguration(pluginConfiguration);
         } catch (JsonParseException e) {
-            eventSinkAPI.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), "", Event.EventSeverity.ERROR.toString()));
+        	eventOutput.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), new ConfigParser(""), Event.EventSeverity.ERROR.toString()));
             LOG.error("Exception occured while getting the param.json data", e);
         } catch (IOException e) {
-            eventSinkAPI.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), "", Event.EventSeverity.ERROR.toString()));
+        	eventOutput.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), new ConfigParser(""), Event.EventSeverity.ERROR.toString()));
             LOG.error("IOException occured while getting the param.json data", e);
         }
     }
@@ -79,7 +79,7 @@ public class RemedyPlugin implements Plugin<RemedyPluginConfiguration> {
             try {
                 configParser.readParseConfigJson(Util.getFieldValues(config.getFileds()));
             } catch (ParsingException ex) {
-                eventSinkAPI.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, ex.getMessage(), config.getHostName(), Event.EventSeverity.ERROR.toString()));
+            	eventOutput.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, ex.getMessage(), new ConfigParser(""), Event.EventSeverity.ERROR.toString()));
                 isValidJson = false;
             }
             //VALIDATION OF THE JSON STRING
@@ -87,7 +87,7 @@ public class RemedyPlugin implements Plugin<RemedyPluginConfiguration> {
             try {
                 configValidator.validate(configParser);
             } catch (ValidationException ex) {
-                eventSinkAPI.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, ex.getMessage(), config.getHostName(), Event.EventSeverity.ERROR.toString()));
+            	eventOutput.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, ex.getMessage(), new ConfigParser(""), Event.EventSeverity.ERROR.toString()));
                 isValidJson = false;
             }
             if (isValidJson) {

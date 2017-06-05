@@ -57,7 +57,7 @@ public class HttpEventSinkAPI {
 	                if (retryCount < Constants.TSI_DEFAULT_RETRIES) {
 	                    retryCount++;
 	                    try {
-	                        LOG.info("[Retry  {} ], Waiting for {} sec before trying again ......", retryCount, (this.configuration.getWaitMsBeforeRetry() / 1000));
+	                        LOG.info("[Retry  {} ], Waiting for {} sec before trying again ......", retryCount, (Constants.TSI_DEFAULT_WAIT_TIME_IN_MILLI / 1000));
 	                        Thread.sleep(Constants.TSI_DEFAULT_WAIT_TIME_IN_MILLI);
 	                    } catch (InterruptedException e1) {
 	                        LOG.info("Thread interrupted ......");
@@ -73,7 +73,7 @@ public class HttpEventSinkAPI {
 	                    retryCount++;
 	                    LOG.error("Sending Event did not result in success, response status Code : {}", new Object[]{response.getStatusLine().getStatusCode()});
 	                    try {
-	                        LOG.info("[Retry  {} ], Waiting for {} sec before trying again ......", retryCount, (this.configuration.getWaitMsBeforeRetry() / 1000));
+	                        LOG.info("[Retry  {} ], Waiting for {} sec before trying again ......", retryCount, (Constants.TSI_DEFAULT_WAIT_TIME_IN_MILLI / 1000));
 	                        Thread.sleep(Constants.TSI_DEFAULT_WAIT_TIME_IN_MILLI);
 	                    } catch (InterruptedException e1) {
 	                        LOG.error("Thread interrupted ......");
