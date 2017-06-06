@@ -64,9 +64,9 @@
       "required" : true
     },
 	{
-      "title": "Remedy Fields",
+      "title": "RemedyField Mapping",
       "name": "fileds",
-      "description": "Remedy Fields",
+      "description": "Remedy TSI Fields Mapping Configuration",
       "type": "array",
       "items": {
 	  "type": "string"
