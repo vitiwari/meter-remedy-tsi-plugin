@@ -85,11 +85,11 @@ public class RemedyChangeManagementCollector implements Collector {
                     OutputInteger nMatches = new OutputInteger();
                     boolean readNext = true;
                     cal = Calendar.getInstance();
-                    cal.add(Calendar.MILLISECOND, (0 - config.getPollInterval()));
+                    cal.add(Calendar.MINUTE, (0 - config.getPollInterval()));
                     while (readNext) {
                         List<Payload> eventList = readRemedyChangeTickets(arServerContext, startFrom, chunkSize, nMatches, cal.getTime());
                         if (eventList.size() > 0) {
-                        	eventSinkAPI.pushBulkEventsToTSI(eventList, "52a90a69-242b-4a5f-8685-44eb1d42a0f8", "https://api.truesight-staging.bmc.com/v1/events");
+                        	eventSinkAPI.pushBulkEventsToTSI(eventList, configParser.getConfiguration().getTsiApiToken(), "https://api.truesight.bmc.com/v1/events");
                         	
                          /*   eventList.forEach(event -> {
                                 Gson gson = new Gson();

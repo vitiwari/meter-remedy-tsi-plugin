@@ -70,6 +70,7 @@ public class RemedyIncidentManagementCollector implements Collector {
 
     @Override
     public void run() {
+    	//System.err.println("Collector running ");
     	HttpEventSinkAPI eventSinkAPI = new HttpEventSinkAPI();
     	EventSinkStandardOutput eventSinkAPIstd = new EventSinkStandardOutput();
         
@@ -78,7 +79,9 @@ public class RemedyIncidentManagementCollector implements Collector {
                 ARServerUser arServerContext = createARServerContext();
                 Calendar cal = null;
                 try {
+                	//System.err.println("Before login ");
                 	arServerContext.login();
+                	//System.err.println("login complete ");
                     int chunkSize = Constants.REMEDY_CHUNK_SIZE;
                     int startFrom = 1;
                     int iteration = 1;
@@ -87,18 +90,22 @@ public class RemedyIncidentManagementCollector implements Collector {
                     cal = Calendar.getInstance();
                     //cal.add(Calendar.MILLISECOND, (0 - config.getPollInterval()));
                     //Only Testing perpose
-                    cal.add(Calendar.MILLISECOND, (0 - config.getPollInterval()));
+                    cal.add(Calendar.MINUTE, (0 - config.getPollInterval()));
                     while (readNext) {
+                    	//System.err.println("before reading from remedy ");
                         List<Payload> eventList = readRemedyIncidentTickets(arServerContext, startFrom, chunkSize, nMatches, cal.getTime());
+                        System.err.println("remedy events got {}"+eventList.size());
+                        //eventList.forEach(System.out::println);
+                       // System.err.println("remedy events got {}"+eventList);
                         if (eventList.size() > 0) {
-                        	eventSinkAPI.pushBulkEventsToTSI(eventList, "52a90a69-242b-4a5f-8685-44eb1d42a0f8", "https://api.truesight-staging.bmc.com/v1/events");
+                        	eventSinkAPI.pushBulkEventsToTSI(eventList, configParser.getConfiguration().getTsiApiToken(), "https://api.truesight.bmc.com/v1/events");
                         	/*eventList.forEach(event -> {
                                 Gson gson = new Gson();
                                 String eventJson = gson.toJson(event, Object.class);
                                 StringBuilder sendEventToTSI = new StringBuilder();
                                 sendEventToTSI.append(Constants.REMEDY_PROXY_EVENT_JSON_START_STRING).append(eventJson).append(Constants.REMEDY_PROXY_EVENT_JSON_END_STRING);
-                                LOG.info(sendEventToTSI.toString());
-                                System.out.println("com.bmc.truesight.meter.plugin.remedy.RemedyIncidentManagementCollector.run()" + sendEventToTSI.toString());
+                                System.err.println(sendEventToTSI.toString());
+                                System.err.println("com.bmc.truesight.meter.plugin.remedy.RemedyIncidentManagementCollector.run()" + sendEventToTSI.toString());
                                 eventSinkAPI.emit(sendEventToTSI.toString());
                             });*/
                         } else {
@@ -112,7 +119,7 @@ public class RemedyIncidentManagementCollector implements Collector {
                     }
 
                 } catch (Exception e) {
-                    LOG.error("Exception occure while fetching the data", e);
+                    System.err.println("Exception occure while fetching the data"+ e.getMessage());
                     eventSinkAPIstd.emit(Util.eventMeterTSI(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), configParser, Event.EventSeverity.ERROR.toString()));
                     //eventSinkAPIstd.emit(Util.event(Constants.REMEDY_PLUGIN_TITLE_MSG, e.getMessage(), config.getHostName(), Event.EventSeverity.ERROR.toString()));
                 } finally {

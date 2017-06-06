@@ -28,7 +28,7 @@ public class Constants {
     public static String PAYLOAD_PLACEHOLDER_DEFINITION_MISSING = "The definition for payload placeholder {0} is missing in the configuration file";
     public static String REMEDY_PLUGIN_TITLE_MSG = "Remedy Plugin";
     public static String REMEDY_LOGIN_FAILED = "Login failed to Remedy Server, ({0})";
-    public static int REMEDY_CHUNK_SIZE = 2000;
+    public static int REMEDY_CHUNK_SIZE = 20;
 
     public static final int SUBMIT_DATE_FIELD = 3;
     public static final String REMEDY_PROXY_EVENT_JSON_START_STRING = "{ \"jsonrpc\": \"2.0\", \"method\": \"proxy_event\", \"params\": {  \"data\":";

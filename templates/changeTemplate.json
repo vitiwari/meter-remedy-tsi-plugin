@@ -1,5 +1,6 @@
 {
 	"config": {
+		"tsiApiToken" : "1e0fc705-2e42-4fb9-8efd-732ddd1501ef",
   		"conditionFields":[6],
 		"statusCondition":[3]
 	},

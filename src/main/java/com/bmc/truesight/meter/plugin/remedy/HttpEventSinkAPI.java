@@ -27,8 +27,9 @@ public class HttpEventSinkAPI {
 	    }
 
 	    public void pushBulkEventsToTSI(final List<Payload> bulkEvents, final String apiToken, final String url) {
-	        //LOG.info("Starting ingestion of {} events  to TSI ", bulkEvents.size());
+	        System.err.println("Starting ingestion of {} events  to TSI "+ bulkEvents.size());
 	        HttpClient httpClient = null;
+	        for(Payload payload:bulkEvents){
 	        boolean isSuccessful = false;
 	        int retryCount = 0;
 	        while (!isSuccessful && retryCount <= Constants.TSI_DEFAULT_RETRIES) {
@@ -41,19 +42,19 @@ public class HttpEventSinkAPI {
 	            ObjectMapper mapper = new ObjectMapper();
 	            String jsonInString = null;
 	            try {
-	                jsonInString = mapper.writeValueAsString(bulkEvents);
+	                jsonInString = mapper.writeValueAsString(payload);
 	                Charset charsetD = Charset.forName("UTF-8");
 	                StringEntity postingString = new StringEntity(jsonInString, charsetD);
 	                httpPost.setEntity(postingString);
 	            } catch (Exception e) {
-	                LOG.error("Can not Send events, There is an issue in creating http request data [{}]", e.getMessage());
+	                System.err.println("Can not Send events, There is an issue in creating http request data [{}]"+ e.getMessage());
 	                break;
 	            }
 	            HttpResponse response;
 	            try {
 	                response = httpClient.execute(httpPost);
 	            } catch (Exception e) {
-	                LOG.error("Sending Event resulted into an exception [{}]", e.getMessage());
+	            	System.err.println("Sending Event resulted into an exception "+ e.getMessage());
 	                if (retryCount < Constants.TSI_DEFAULT_RETRIES) {
 	                    retryCount++;
 	                    try {
@@ -71,7 +72,7 @@ public class HttpEventSinkAPI {
 	            if (statusCode != Constants.TSI_STATUS_CODE) {
 	                if (retryCount < Constants.TSI_DEFAULT_RETRIES) {
 	                    retryCount++;
-	                    LOG.error("Sending Event did not result in success, response status Code : {}", new Object[]{response.getStatusLine().getStatusCode()});
+	                    System.err.println("Sending Event did not result in success, response status Code : {}"+ new Object[]{response.getStatusLine().getStatusCode()});
 	                    try {
 	                        LOG.info("[Retry  {} ], Waiting for {} sec before trying again ......", retryCount, (Constants.TSI_DEFAULT_WAIT_TIME_IN_MILLI / 1000));
 	                        Thread.sleep(Constants.TSI_DEFAULT_WAIT_TIME_IN_MILLI);
@@ -84,9 +85,10 @@ public class HttpEventSinkAPI {
 	                }
 	            } else {
 	                isSuccessful = true;
-	                LOG.info("Event sending successful {}", response.getStatusLine());
+	                System.err.println("Event sending successful {}"+ response.getStatusLine());
 	                break;
 	            }
+	        }
 	        }
 	    }
 
